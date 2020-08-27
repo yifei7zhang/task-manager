@@ -4,15 +4,11 @@
 // const MongoClient = mongodb.MongoClient;
 // const ObjectID = mongodb.ObjectID;
 
-const { MongoClient, ObjectID } = require("mongodb");
+const { MongoClient, ObjectID, DBRef } = require("mongodb");
 
 const connectionURL = "mongodb://127.0.0.1:27017";
 const databaseName = "task-manager";
 
-const id = new ObjectID();
-console.log(id.id.length);
-console.log(id.toHexString().length);
-console.log(id.getTimestamp());
 MongoClient.connect(
   connectionURL,
   { useNewUrlParser: true, useUnifiedTopology: true },
@@ -21,50 +17,41 @@ MongoClient.connect(
       return console.log(`Unable to connect to database! ${error}`);
     }
     const db = client.db(databaseName);
-    // db.collection("users").insertOne(
-    //   {
-    //     _id: id,
-    //     name: "a Bot",
-    //     age: 20,
-    //   },
-    //   (error, result) => {
+    // db.collection("users").findOne(
+    //   { _id: ObjectID("5f4802f558f7b8292c574828") },
+    //   (error, user) => {
     //     if (error) {
-    //       return console.log("unable to insert user");
+    //       return console.log("unable to fetch");
     //     }
-    //     console.log(result.ops);
+    //     console.log(user);
     //   }
     // );
+    // db.collection("users")
+    //   .find({ age: 20 })
+    //   .toArray((error, users) => {
+    //     console.log(users);
+    //   });
 
-    // db.collection("users").insertMany(
-    //   [
-    //     { name: "bob", age: 33 },
-    //     { name: "the builder", age: 20 },
-    //   ],
-    //   (error, result) => {
-    //     if (error) {
-    //       return console.log("unable to insert!");
-    //     }
-    //     console.log(result.ops);
-    //   }
-    // );
+    // db.collection("users")
+    //   .find({ age: 20 })
+    //   .count((error, users) => {
+    //     console.log(users);
+    //   });
 
-    // db.collection("tasks").insertMany(
-    //   [
-    //     {
-    //       description: "finish this challenge",
-    //       completed: true,
-    //     },
-    //     {
-    //       description: "get an internship in cali",
-    //       completed: false,
-    //     },
-    //   ],
-    //   (error, result) => {
-    //     if (error) {
-    //       return console.log("unable to insert!");
-    //     }
-    //     console.log(result.ops);
-    //   }
-    // );
+    db.collection("tasks").findOne(
+      {
+        _id: ObjectID("5f48052410f34629974344a8"),
+      },
+      (e, res) => {
+        console.log(res);
+      }
+    );
+    db.collection("tasks")
+      .find({
+        completed: false,
+      })
+      .toArray((e, res) => {
+        console.log(res);
+      });
   }
 );

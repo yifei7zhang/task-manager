@@ -24,18 +24,3 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`App is now listening on ${port}`);
 });
-
-const Task = require("./models/task");
-const User = require("./models/user");
-
-const main = async () => {
-  // const task = await Task.findById("5f5584a0a052961a77bf5e95");
-  // await task.populate("owner").execPopulate();
-  // console.log(task.owner);
-
-  const user = await User.findById("5f558431a2a2501a05fa66d0");
-  await user.populate("tasks").execPopulate();
-  console.log(user.tasks);
-};
-
-main();

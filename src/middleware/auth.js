@@ -1,11 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+require("dotenv").config();
 
 const auth = async (req, res, next) => {
   try {
     // Checks for jwt header token, and verifies it.
     const token = req.header("Authorization").replace("Bearer ", "");
-    const decoded = jwt.verify(token, "thisisarandomstring");
+    const decoded = jwt.verify(token, process.env.JWT_TOKEN);
     const user = await User.findOne({
       _id: decoded._id,
       "tokens.token": token,

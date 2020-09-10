@@ -1,28 +1,15 @@
 const request = require("supertest");
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 require("dotenv").config();
+
 const app = require("../src/app");
 const User = require("../src/models/user");
+const { userOneId, userOne, setUpDatabase } = require("./fixtures/db");
 
-const userOneId = new mongoose.Types.ObjectId();
+beforeEach(setUpDatabase);
 
-const userOne = {
-  _id: userOneId,
-  name: "Bob",
-  email: "bob@bob.com",
-  password: "Bobspass!",
-  tokens: [
-    {
-      token: jwt.sign({ _id: userOneId }, process.env.JWT_TOKEN),
-    },
-  ],
-};
-
-beforeEach(async () => {
-  await User.deleteMany();
-  await new User(userOne).save();
-});
+// afterAll(() => {
+//   mongoose.connection.close();
+// });
 
 test("Should signup a new user", async () => {
   const response = await request(app)
@@ -99,4 +86,39 @@ test("should delete account for user", async () => {
 
 test("should no delete account for unuthed user", async () => {
   await request(app).delete("/users/me").send().expect(401);
+});
+
+test("should upload avatar image", async () => {
+  await request(app)
+    .post("/users/me/avatar")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .attach("upload", "tests/fixtures/profile-pic.jpg")
+    .expect(200);
+
+  const user = await User.findById(userOneId);
+  expect(user.avatar).toEqual(expect.any(Buffer));
+  // Not the same; bc toBe uses === comparison (needs to be same obj in mem)
+});
+
+test("should update valid user fields", async () => {
+  await request(app)
+    .patch("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      name: "James",
+    })
+    .expect(200);
+
+  const user = await User.findById(userOneId);
+  expect(user.name).toEqual("James");
+});
+
+test("Should not update invalid user fields", async () => {
+  await request(app)
+    .patch("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      location: "6ix",
+    })
+    .expect(400);
 });
